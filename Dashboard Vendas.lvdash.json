@@ -1,0 +1,547 @@
+{
+  "datasets": [
+    {
+      "name": "vendas",
+      "displayName": "Vendas (gold)",
+      "config": {
+        "version": "1.1",
+        "source": "workspace.gold.sales_consolidated",
+        "dimensions": [
+          {
+            "name": "Data",
+            "expr": "order_date"
+          },
+          {
+            "name": "Categoria",
+            "expr": "COALESCE(category, 'SEM CATEGORIA')"
+          },
+          {
+            "name": "Fonte",
+            "expr": "source"
+          },
+          {
+            "name": "Estado",
+            "expr": "ship_state"
+          },
+          {
+            "name": "Estilo",
+            "expr": "style"
+          }
+        ],
+        "measures": [
+          {
+            "name": "Receita Bruta",
+            "expr": "SUM(gross_amount)",
+            "format": {
+              "type": "currency",
+              "currencyCode": "INR",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 2.0
+              }
+            }
+          },
+          {
+            "name": "Receita Liquida",
+            "expr": "SUM(net_amount)",
+            "format": {
+              "type": "currency",
+              "currencyCode": "INR",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 2.0
+              }
+            }
+          },
+          {
+            "name": "Unidades",
+            "expr": "SUM(qty)"
+          },
+          {
+            "name": "Pedidos",
+            "expr": "COUNT(DISTINCT order_id)"
+          },
+          {
+            "name": "Taxa de Cancelamento",
+            "expr": "SUM(CASE WHEN is_cancelled THEN gross_amount ELSE 0 END) / SUM(gross_amount)",
+            "format": {
+              "type": "percentage",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 1.0
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "pages": [
+    {
+      "name": "pagina_vendas",
+      "displayName": "Vendas",
+      "layout": [
+        {
+          "widget": {
+            "name": "kpi_receita_bruta",
+            "queries": [
+              {
+                "name": "main",
+                "query": {
+                  "datasetName": "vendas",
+                  "fields": [
+                    {
+                      "name": "receita_bruta",
+                      "expression": "MEASURE(`Receita Bruta`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "frame": {
+                "title": "Receita Bruta",
+                "showTitle": true
+              },
+              "encodings": {
+                "value": {
+                  "fieldName": "receita_bruta",
+                  "displayName": "Receita Bruta",
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "INR",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 1
+                    }
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 3,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_receita_liquida",
+            "queries": [
+              {
+                "name": "main",
+                "query": {
+                  "datasetName": "vendas",
+                  "fields": [
+                    {
+                      "name": "receita_liquida",
+                      "expression": "MEASURE(`Receita Liquida`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "frame": {
+                "title": "Receita Líquida",
+                "showTitle": true
+              },
+              "encodings": {
+                "value": {
+                  "fieldName": "receita_liquida",
+                  "displayName": "Receita Líquida",
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "INR",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 1
+                    }
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 0,
+            "width": 3,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_unidades",
+            "queries": [
+              {
+                "name": "main",
+                "query": {
+                  "datasetName": "vendas",
+                  "fields": [
+                    {
+                      "name": "unidades",
+                      "expression": "MEASURE(`Unidades`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "frame": {
+                "title": "Unidades Vendidas",
+                "showTitle": true
+              },
+              "encodings": {
+                "value": {
+                  "fieldName": "unidades",
+                  "displayName": "Unidades",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 1
+                    }
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 0,
+            "width": 3,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_cancelamento",
+            "queries": [
+              {
+                "name": "main",
+                "query": {
+                  "datasetName": "vendas",
+                  "fields": [
+                    {
+                      "name": "taxa_cancelamento",
+                      "expression": "MEASURE(`Taxa de Cancelamento`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "frame": {
+                "title": "Taxa de Cancelamento",
+                "showTitle": true
+              },
+              "encodings": {
+                "value": {
+                  "fieldName": "taxa_cancelamento",
+                  "displayName": "Cancelamento",
+                  "format": {
+                    "type": "number-percent",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 1
+                    }
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main"
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 0,
+            "width": 3,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "receita_por_mes",
+            "queries": [
+              {
+                "name": "main",
+                "query": {
+                  "datasetName": "vendas",
+                  "fields": [
+                    {
+                      "name": "mes",
+                      "expression": "DATE_TRUNC('MONTH', `Data`)"
+                    },
+                    {
+                      "name": "receita_liquida",
+                      "expression": "MEASURE(`Receita Liquida`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "line",
+              "frame": {
+                "title": "Receita líquida por mês",
+                "showTitle": true
+              },
+              "encodings": {
+                "x": {
+                  "fieldName": "mes",
+                  "displayName": "Mês",
+                  "scale": {
+                    "type": "temporal"
+                  }
+                },
+                "y": {
+                  "fieldName": "receita_liquida",
+                  "displayName": "Receita Líquida",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 4,
+            "width": 8,
+            "height": 8
+          }
+        },
+        {
+          "widget": {
+            "name": "receita_por_fonte",
+            "queries": [
+              {
+                "name": "main",
+                "query": {
+                  "datasetName": "vendas",
+                  "fields": [
+                    {
+                      "name": "fonte",
+                      "expression": "`Fonte`"
+                    },
+                    {
+                      "name": "receita",
+                      "expression": "MEASURE(`Receita Bruta`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "pie",
+              "frame": {
+                "title": "Receita bruta por fonte",
+                "showTitle": true
+              },
+              "encodings": {
+                "angle": {
+                  "fieldName": "receita",
+                  "displayName": "Receita Bruta",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "fonte",
+                  "displayName": "Fonte",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main"
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 4,
+            "width": 4,
+            "height": 8
+          }
+        },
+        {
+          "widget": {
+            "name": "receita_por_categoria",
+            "queries": [
+              {
+                "name": "main",
+                "query": {
+                  "datasetName": "vendas",
+                  "fields": [
+                    {
+                      "name": "categoria",
+                      "expression": "`Categoria`"
+                    },
+                    {
+                      "name": "receita",
+                      "expression": "MEASURE(`Receita Bruta`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "frame": {
+                "title": "Receita bruta por categoria",
+                "showTitle": true
+              },
+              "encodings": {
+                "x": {
+                  "fieldName": "categoria",
+                  "displayName": "Categoria",
+                  "scale": {
+                    "type": "categorical",
+                    "categorySize": {
+                      "type": "number-of-categories",
+                      "number": 8
+                    },
+                    "sort": {
+                      "by": "measure-reversed",
+                      "measure": {
+                        "fieldName": "receita"
+                      }
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "receita",
+                  "displayName": "Receita Bruta",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 12,
+            "width": 6,
+            "height": 8
+          }
+        },
+        {
+          "widget": {
+            "name": "receita_por_estado",
+            "queries": [
+              {
+                "name": "main",
+                "query": {
+                  "datasetName": "vendas",
+                  "fields": [
+                    {
+                      "name": "estado",
+                      "expression": "`Estado`"
+                    },
+                    {
+                      "name": "receita",
+                      "expression": "MEASURE(`Receita Bruta`)"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "expression": "`Fonte` IN ('AMAZON')"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "frame": {
+                "title": "Receita bruta por estado (Amazon)",
+                "showTitle": true
+              },
+              "encodings": {
+                "x": {
+                  "fieldName": "estado",
+                  "displayName": "Estado",
+                  "scale": {
+                    "type": "categorical",
+                    "categorySize": {
+                      "type": "number-of-categories",
+                      "number": 10
+                    },
+                    "sort": {
+                      "by": "measure-reversed",
+                      "measure": {
+                        "fieldName": "receita"
+                      }
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "receita",
+                  "displayName": "Receita Bruta",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 12,
+            "width": 6,
+            "height": 8
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ]
+}
